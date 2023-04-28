@@ -1,7 +1,7 @@
 # RoadShooter
 **Haifa CS Projects** 
 
-[slack link](haifacsprojects.slack.com)
+[slack link](https://haifacsprojects.slack.com)
 
 ## Work journal: 
 ### Update 1 : 
