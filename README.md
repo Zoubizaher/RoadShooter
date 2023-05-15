@@ -18,5 +18,5 @@ using particle system components to emit particles from the exhaust in relation 
 using the Trail Renderer component to see where the car is crossing.
 add boundaries by clamping the z rotation of the car to avoid the player get out from the road.
 
-### Update 2 : 
+### Update 3 : 
 To be continued ...
