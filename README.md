@@ -19,5 +19,4 @@ using the Trail Renderer component to see where the car is crossing.
 add boundaries by clamping the z rotation of the car to avoid the player get out from the road.
 
 ### Update 2 : 
-To be continued ... 
-فخ
+To be continued ...
