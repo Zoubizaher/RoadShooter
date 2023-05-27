@@ -12,7 +12,10 @@ public class VehicleController : MonoBehaviour
     public WheelCollider[] Rwheels;
 
     [SerializeField] float JumpForce = 1500.0f;
+    [SerializeField] float JumpForceRightDirection = 150.0f;
+
     [SerializeField] float MotorForce = 1500.0f;
+    public float motorForceInstance;
     [SerializeField] float steerSpeed = 0.2f;
     [SerializeField] float steerAngle1 = 30.0f;
 
@@ -22,6 +25,7 @@ public class VehicleController : MonoBehaviour
 
     public float MaxSpeed = 70f;
     public float CurrentSpeed = 0;
+    public float brakingPower = 500f;
 
     //Ground SET
     public LayerMask GroundMasking;
@@ -48,27 +52,34 @@ public class VehicleController : MonoBehaviour
     public float ClampZCarPosRight = -100;
     public float ClampZCarPosleft = 100;
 
+
+    public bool CarIsShield = false;
     // Start is called before the first frame update
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
         _rb.ResetCenterOfMass();
         _rb.ResetInertiaTensor();
-        _rb.centerOfMass = new Vector3(0, -1.9f, 0);
-
+        _rb.centerOfMass = centerOfMass.localPosition;
+        motorForceInstance = MotorForce;
     }
 
     // Update is called once per frame
     void Update()
     {
         isGrounded = getGround(rayCastLineDistanceToGround);
-        SpeedUpdate();
 
     }
     private void FixedUpdate()
     {
         ClampingPos();
+    
+            SpeedUpdate();
+
+     
         SetTheCarControls();
+
+
         SetExhustEmit();
 
     }
@@ -93,12 +104,9 @@ public class VehicleController : MonoBehaviour
         
 
         DownForce();
-        ClampCarRotation();
         float steer = Input.GetAxis("Vertical") * steerAngle1;
         //Edit
         SetTheSteeringWheels1(steer * -1);
-        float motor = MotorForce;
-        SetTheEngine(Mathf.Abs(motor));
 
 
 
@@ -119,38 +127,81 @@ public class VehicleController : MonoBehaviour
 
     public void SetTheEngine(float inputKeysPress)
     {
-        float speedLocal = Mathf.Abs(CurrentSpeed);
+        float speedDiff = CurrentSpeed - MaxSpeed;
 
         foreach (WheelCollider RSWheels in Rwheels)
         {
 
-            if (speedLocal < MaxSpeed)
+            if (CurrentSpeed < MaxSpeed)
+            {
+
+                RSWheels.motorTorque = inputKeysPress + 0.001f;
+                RSWheels.brakeTorque = 0f;
+
+            }
+            else
+            {
+                float brakeForce = Mathf.Clamp(speedDiff * brakingPower, 0f, Mathf.Infinity);
+                RSWheels.brakeTorque = brakeForce;
+                float setMotor = MotorForce;
+                setMotor *= Mathf.Clamp01(1f - speedDiff / MaxSpeed);
+                RSWheels.motorTorque = setMotor;
+            }
+        }
+        foreach (WheelCollider TSWheels in Twheels)
+        {
+
+            if (CurrentSpeed < MaxSpeed)
+            {
+                TSWheels.motorTorque = inputKeysPress + 0.001f;
+                TSWheels.brakeTorque = 0f;
+
+
+            }
+            else
+            {
+                float brakeForce = Mathf.Clamp(speedDiff * brakingPower, 0f, Mathf.Infinity);
+                TSWheels.brakeTorque = brakeForce;
+                float setMotor = MotorForce;
+                setMotor *= Mathf.Clamp01(1f - speedDiff / MaxSpeed);
+                TSWheels.motorTorque = setMotor;
+
+            }
+
+        }
+    }
+    public void SetTheEngine1(float inputKeysPress)
+    {
+
+        foreach (WheelCollider RSWheels in Rwheels)
+        {
+
+            if (CurrentSpeed < MaxSpeed)
             {
                 RSWheels.motorTorque = inputKeysPress + 0.001f;
 
             }
             else
             {
-                RSWheels.motorTorque = 0.001f;
+                RSWheels.motorTorque = 0.0001f;
             }
         }
         foreach (WheelCollider TSWheels in Twheels)
         {
 
-            if (speedLocal > MaxSpeed)
+            if (CurrentSpeed > MaxSpeed)
             {
                 TSWheels.motorTorque = 0.001f;
 
             }
             else
             {
-                TSWheels.motorTorque = inputKeysPress + 0.001f;
+                TSWheels.motorTorque = inputKeysPress + 0.0001f;
 
             }
 
         }
     }
-
     public void SetTheSteeringWheels(float steer)
     {
         //bool wallLimit = isDetectLimitWall(steer);
@@ -257,9 +308,11 @@ public class VehicleController : MonoBehaviour
         //bool wallLimit = isDetectLimitWall(steer);
 
         //bool setLerpBackToCurrectDIrection = makeTheWheelSteerBackToRightDirectionReturnBool(steer);
+        ClampCarRotation();
 
         if (steer != 0)
         {
+
             //Mathf.Clamp TO limit the min and the max value
             float steerWheels = Mathf.Clamp(steer, NegativesteerAngle1, PositivesteerAngle1);
             //
@@ -337,7 +390,7 @@ public class VehicleController : MonoBehaviour
                     }
                     else
                     {
-                        if (transform.position.z <= ClampZCarPosleft - 3f && transform.position.z >= ClampZCarPosRight + 3f)
+                        if (transform.position.z <= ClampZCarPosleft - 7f && transform.position.z >= ClampZCarPosRight + 7f)
                         {
                             PositivesteerAngle1 = 30f;
                             NegativesteerAngle1 = -30f;
@@ -628,15 +681,26 @@ public class VehicleController : MonoBehaviour
     {
         float CheckSpeed = transform.InverseTransformDirection(_rb.velocity).z * 3.6f;
         CurrentSpeed = CheckSpeed;
-        if(CheckSpeed > MaxSpeed)
+        if(CurrentSpeed > MaxSpeed)
         {
-            CurrentSpeed = MaxSpeed;
+            MotorForce = 0.001f;
+            SetTheEngine(MotorForce);
+
+            //CurrentSpeed = MaxSpeed;
+        }
+        else
+        {
+            MotorForce = motorForceInstance;
+            SetTheEngine(MotorForce);
+
         }
     }
 
     public void Jumping(float jumpForce)
     {
-        _rb.AddForce(transform.up * jumpForce,ForceMode.Impulse);
+        _rb.AddForce(Vector3.up * jumpForce,ForceMode.Impulse);
+        _rb.AddForce(Vector3.right * JumpForceRightDirection, ForceMode.Impulse);
+
     }
     public void SetExhustEmit()
     {
@@ -644,7 +708,7 @@ public class VehicleController : MonoBehaviour
         {
             foreach(ParticleSystem psEx in psExhust)
             {
-                float rate = 20 * MaxSpeed / CurrentSpeed;
+                float rate = 20 ;
                 var emissionModule = psEx.emission;
                 emissionModule.rateOverTime = rate;
 
@@ -711,6 +775,11 @@ public class VehicleController : MonoBehaviour
             return false;
 
         }
+    }
+
+    public void CarIsDestroyed()
+    {
+
     }
 
     
