@@ -24,7 +24,10 @@ public class WallDetect : MonoBehaviour
     public float maxHealth = 100;
 
     [SerializeField] List<Collider> AllCollidersRefrence;
-
+    private void Start()
+    {
+        health = maxHealth;
+    }
     private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.tag == "Player")
@@ -36,10 +39,9 @@ public class WallDetect : MonoBehaviour
             }
             else
             {
-                VC.CarIsDestroyed();
+                VC.CarIsDestroyed(VC.transform.position);
 
-                //temp
-                WallDestruction();
+             
             }
         }
     }
@@ -48,6 +50,15 @@ public class WallDetect : MonoBehaviour
     public void WallDestruction()
     {
         Destroyed1(transform.position);
+    }
+
+    public void DamageWall(float dmg)
+    {
+        health -= dmg;
+        if(health < 0)
+        {
+            WallDestruction();
+        }
     }
     public void Destroyed1(Vector3 posExplosion)
     {

@@ -54,6 +54,28 @@ public class VehicleController : MonoBehaviour
 
 
     public bool CarIsShield = false;
+    public bool PlayerISDead = false;
+
+    //Destruction Values
+    public float radius = 5.0F;
+    public float power = 10.0F;
+
+    [Range(1, 500000)]
+    public float Minpower = 10.0F;
+
+    [Range(1, 500000)]
+    public float Maxpower = 10.0F;
+
+    public float uplifter = 3.0f;
+
+    [Range(1, 50000)]
+    public float Minuplifter = 3.0f;
+
+    [Range(1, 50000)]
+    public float Maxuplifter = 3.0f;
+
+    [SerializeField] List<Collider> AllCollidersRefrence;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -777,11 +799,62 @@ public class VehicleController : MonoBehaviour
         }
     }
 
-    public void CarIsDestroyed()
+    public void CarIsDestroyed(Vector3 posExplosion)
     {
 
+        MeshRenderer[] getAllRendTemp = GetComponentsInChildren<MeshRenderer>(true);
+        List<MeshRenderer> getR = new List<MeshRenderer>();
+        for (int i = 0; i < getAllRendTemp.Length; i++)
+        {
+
+
+            GameObject go = Instantiate(getAllRendTemp[i].transform.gameObject, getAllRendTemp[i].transform.position, getAllRendTemp[i].transform.rotation);
+            go.transform.localScale = getAllRendTemp[i].transform.lossyScale;
+            getR.Add(go.GetComponent<MeshRenderer>());
+
+
+        }
+
+        MeshRenderer[] getAllRend = getR.ToArray();
+
+
+
+
+        //
+        foreach (MeshRenderer SaperatedMesh in getAllRend)
+        {
+            GameObject go = SaperatedMesh.transform.gameObject;
+            if (go.GetComponent<Rigidbody>() == null)
+            {
+                go.AddComponent<Rigidbody>();
+                go.AddComponent<BoxCollider>();
+                AllCollidersRefrence.Add(go.GetComponent<BoxCollider>());
+            }
+            Destroy(go, 20f);
+        }
+
+        //Explosion
+
+        //Destroy(this.gameObject.GetComponent<Rigidbody>());
+        //Destroy(this.gameObject.GetComponent<BoxCollider>());
+
+        Vector3 explosionPos = posExplosion;
+        power = Random.Range(Minpower, Maxpower);
+        uplifter = Random.Range(Minuplifter, Maxuplifter);
+
+        foreach (Collider hit in AllCollidersRefrence)
+        {
+            Rigidbody rb = hit.GetComponent<Rigidbody>();
+
+            if (rb != null)
+                rb.AddExplosionForce(power, explosionPos, radius, uplifter);
+            rb.AddRelativeTorque(Vector3.right * power);
+        }
+
+        this.transform.gameObject.SetActive(false);
+        PlayerISDead = true;
     }
 
-    
+
 }
 
