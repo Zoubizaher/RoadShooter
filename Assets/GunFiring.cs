@@ -19,7 +19,7 @@ public class GunFiring : MonoBehaviour
     void Update()
     {
         currentTime += Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.F) && FireR < currentTime)
+        if (Input.GetKey(KeyCode.F) && FireR < currentTime)
         {
             Fire();
             currentTime = 0;

@@ -11,7 +11,7 @@ public class VehicleController : MonoBehaviour
     public WheelCollider[] Twheels;
     public WheelCollider[] Rwheels;
 
-    [SerializeField] float JumpForce = 1500.0f;
+    [SerializeField] float JumpForce = 1500.0f; 
     [SerializeField] float JumpForceRightDirection = 150.0f;
 
     [SerializeField] float MotorForce = 1500.0f;
@@ -76,6 +76,8 @@ public class VehicleController : MonoBehaviour
 
     [SerializeField] List<Collider> AllCollidersRefrence;
 
+
+    public GameObject SHIELD_GO;
     // Start is called before the first frame update
     void Start()
     {
@@ -126,9 +128,9 @@ public class VehicleController : MonoBehaviour
         
 
         DownForce();
-        float steer = Input.GetAxis("Vertical") * steerAngle1;
+        float steer = Input.GetAxis("Horizontal") * steerAngle1;
         //Edit
-        SetTheSteeringWheels1(steer * -1);
+        SetTheSteeringWheels1(steer * 1);
 
 
 
@@ -807,10 +809,17 @@ public class VehicleController : MonoBehaviour
         for (int i = 0; i < getAllRendTemp.Length; i++)
         {
 
+            if(getAllRendTemp[i].gameObject.tag == "Shield")
+            {
 
-            GameObject go = Instantiate(getAllRendTemp[i].transform.gameObject, getAllRendTemp[i].transform.position, getAllRendTemp[i].transform.rotation);
-            go.transform.localScale = getAllRendTemp[i].transform.lossyScale;
-            getR.Add(go.GetComponent<MeshRenderer>());
+            }
+            else
+            {
+                GameObject go = Instantiate(getAllRendTemp[i].transform.gameObject, getAllRendTemp[i].transform.position, getAllRendTemp[i].transform.rotation);
+                go.transform.localScale = getAllRendTemp[i].transform.lossyScale;
+                getR.Add(go.GetComponent<MeshRenderer>());
+            }
+
 
 
         }
@@ -855,6 +864,23 @@ public class VehicleController : MonoBehaviour
         PlayerISDead = true;
     }
 
+
+    public void ActiveShield(float duration)
+    {
+        SHIELD_GO.transform.gameObject.SetActive(true);
+
+        CarIsShield = true;
+        Invoke("DeactivateShield", duration);
+
+    }
+    public void DeactivateShield()
+    {
+
+
+        SHIELD_GO.transform.gameObject.SetActive(false);
+        CarIsShield = false;
+
+    }
 
 }
 

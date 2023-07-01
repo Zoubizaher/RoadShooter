@@ -115,7 +115,7 @@ public class WallDetect : MonoBehaviour
         }
 
         this.transform.gameObject.SetActive(false);
-        //Destroy(this.gameObject, 10f);
+        Destroy(this.gameObject, 10f);
     }
 }
 

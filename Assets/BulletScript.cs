@@ -29,6 +29,10 @@ public class BulletScript : MonoBehaviour
             Destroy(gameObject);
 
         }
+        else if (other.transform.gameObject.tag == "Shield")
+        {
+            return;
+        }
         else
         {
             Destroy(gameObject);

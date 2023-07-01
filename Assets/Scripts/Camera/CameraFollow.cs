@@ -12,6 +12,8 @@ public class CameraFollow : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        transform.rotation = Quaternion.Euler(90, 90, 0);
+      offset = new Vector3(150, 600.7f, 0f);
 
     }
 
