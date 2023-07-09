@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WallDetect : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class WallDetect : MonoBehaviour
     public float health;
     public float maxHealth = 100;
 
+    public Image UIImageHealthFill;
     [SerializeField] List<Collider> AllCollidersRefrence;
     private void Start()
     {
@@ -32,8 +34,12 @@ public class WallDetect : MonoBehaviour
     {
         if(other.gameObject.tag == "Player")
         {
-            VehicleController VC = other.gameObject.GetComponent<VehicleController>(); 
-            if(VC.CarIsShield)
+            VehicleController VC = other.gameObject.GetComponent<VehicleController>();
+            if (VC.GameIsStarted == false)
+            {
+                return;
+            }
+            if (VC.CarIsShield)
             {
                 WallDestruction();
             }
@@ -55,7 +61,8 @@ public class WallDetect : MonoBehaviour
     public void DamageWall(float dmg)
     {
         health -= dmg;
-        if(health < 0)
+        UIImageHealthFill.fillAmount = health / maxHealth;
+        if (health < 0)
         {
             WallDestruction();
         }

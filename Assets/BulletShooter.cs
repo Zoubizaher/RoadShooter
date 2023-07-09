@@ -23,6 +23,8 @@ public class BulletShooter : MonoBehaviour
 
     [SerializeField] List<Collider> AllCollidersRefrence;
 
+    public bool isDestroyWhenTouchThePlayer = false;
+
     private void Start()
     {
         Destroy(gameObject, 20f);
@@ -34,6 +36,10 @@ public class BulletShooter : MonoBehaviour
         {
 
             VehicleController VC = collision.gameObject.GetComponent<VehicleController>();
+            if(VC.GameIsStarted == false)
+            {
+                return;
+            }
             if (VC.CarIsShield)
             {
 
@@ -55,8 +61,15 @@ public class BulletShooter : MonoBehaviour
         }
         else
         {
+            if(isDestroyWhenTouchThePlayer)
+            {
 
-            DestroyBullet(transform.position);
+            }
+            else
+            {
+                DestroyBullet(transform.position);
+
+            }
 
         }
     }

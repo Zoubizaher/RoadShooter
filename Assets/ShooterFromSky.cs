@@ -17,6 +17,8 @@ public class ShooterFromSky : MonoBehaviour
 
     public float maxFireRATIO = 0.3f;
     public float minFireRATIO = 3f;
+
+    public bool BallNonDestructive = false;
     // Update is called once per frame
     void Update()
     {
@@ -49,6 +51,7 @@ public class ShooterFromSky : MonoBehaviour
         Vector3 aimDirection = (playerObj.transform.position - transform.position).normalized;
         GameObject bullet = Instantiate(BulletFromSky, transform.position, Quaternion.identity);
         bullet.GetComponent<Rigidbody>().velocity = aimDirection * bulletSpeed;
+        bullet.GetComponent<BulletShooter>().isDestroyWhenTouchThePlayer = BallNonDestructive;
     }
     private void OnDrawGizmos()
     {

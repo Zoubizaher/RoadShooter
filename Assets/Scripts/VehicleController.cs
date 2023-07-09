@@ -11,7 +11,7 @@ public class VehicleController : MonoBehaviour
     public WheelCollider[] Twheels;
     public WheelCollider[] Rwheels;
 
-    [SerializeField] float JumpForce = 1500.0f; 
+    [SerializeField] float JumpForce = 1500.0f;
     [SerializeField] float JumpForceRightDirection = 150.0f;
 
     [SerializeField] float MotorForce = 1500.0f;
@@ -78,6 +78,11 @@ public class VehicleController : MonoBehaviour
 
 
     public GameObject SHIELD_GO;
+
+    public GameManager gameUIMange;
+    public bool GameIsStarted;
+    public float currentTime;
+    public float maxTimeNotMoving = 10f;
     // Start is called before the first frame update
     void Start()
     {
@@ -86,12 +91,15 @@ public class VehicleController : MonoBehaviour
         _rb.ResetInertiaTensor();
         _rb.centerOfMass = centerOfMass.localPosition;
         motorForceInstance = MotorForce;
+        gameUIMange = FindObjectOfType<GameManager>();
+        Invoke("setGameIsStart", 1f);
     }
 
     // Update is called once per frame
     void Update()
     {
         isGrounded = getGround(rayCastLineDistanceToGround);
+        checkCarNotMoving();
 
     }
     private void FixedUpdate()
@@ -862,6 +870,9 @@ public class VehicleController : MonoBehaviour
 
         this.transform.gameObject.SetActive(false);
         PlayerISDead = true;
+        gameUIMange.LostTheGame();
+        enabled = false;
+
     }
 
 
@@ -882,5 +893,31 @@ public class VehicleController : MonoBehaviour
 
     }
 
+    public void checkCarNotMoving()
+    {
+        if (GameIsStarted && PlayerISDead == false)
+        {
+            if(CurrentSpeed <= 5)
+            {
+                currentTime += Time.deltaTime;
+                if(currentTime > maxTimeNotMoving)
+                {
+                    CarIsDestroyed(transform.position);
+                    GameIsStarted = false;
+                }
+
+            }
+            else
+            {
+                currentTime = 0;
+
+            }
+        }
+    }
+
+    public void setGameIsStart()
+    {
+        GameIsStarted = true;
+    }
 }
 
